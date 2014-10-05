@@ -1,9 +1,9 @@
-#include <libbb.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <selinux/selinux.h>
 
 /* create a new context with user name (may be unsafe) */
-int get_default_context(const char* user,
-	const char* fromcon UNUSED_PARAM,
+int get_default_context(const char* user, const char* fromcon,
 	char ** newcon)
 {
 	char fmt[] = "u:r:%s:s0\0";
@@ -19,18 +19,9 @@ int get_default_context(const char* user,
 /* Compute a relabeling decision and set *newcon to refer to it.
    Caller must free via freecon.
    Stub not implemented in bionic, but declared in selinux.h */
-#if defined(BIONIC_L) || !defined(__i386__)
-int security_compute_relabel(const char *scon UNUSED_PARAM,
-	const char *tcon,
-	security_class_t tclass UNUSED_PARAM,
+int security_compute_relabel(const char *scon, const char *tcon,
+	security_class_t tclass,
 	char ** newcon)
-#else
-/* this was changed after 4.4.2 */
-int security_compute_relabel(const security_context_t scon UNUSED_PARAM,
-	const security_context_t tcon,
-	security_class_t tclass UNUSED_PARAM,
-	security_context_t *newcon)
-#endif
 {
 	if (tcon)
 		*newcon = strdup(tcon);
@@ -41,7 +32,7 @@ int security_compute_relabel(const security_context_t scon UNUSED_PARAM,
 
 /* Check a permission in the passwd class.
    Return 0 if granted or -1 otherwise. */
-int selinux_check_passwd_access(access_vector_t requested UNUSED_PARAM)
+int selinux_check_passwd_access(access_vector_t requested)
 {
 	return 0;
 }
